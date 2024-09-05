@@ -146,7 +146,7 @@ Rectangle {
                     anchors.fill:       parent
                     source:             "/res/XDelete.svg"
                     fillMode:           Image.PreserveAspectFit
-                    color:              qgcPal.text
+                    color:              qgcPal.primaryButtonText
                 }
 
                 QGCMouseArea {
