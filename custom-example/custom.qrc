@@ -33,6 +33,8 @@
         <file alias="QGroundControl/FlightDisplay/FlyViewCustomLayer.qml">res/CustomFlyViewOverlay.qml</file>
     </qresource>
     <qresource prefix="/res">
-		<file alias="QGCLogoFull">res/QGCLogoFull.svg</file>
+        <file alias="QGCLogoBlack">res/CustomQGCLogoBlack.svg</file>
+		<file alias="QGCLogoFull">res/CustomQGCLogoFull.svg</file>
+        <file alias="QGCLogoWhite">res/CustomQGCLogoWhite.svg</file>
     </qresource>
 </RCC>
