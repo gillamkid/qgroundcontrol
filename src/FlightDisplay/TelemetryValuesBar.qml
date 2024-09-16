@@ -49,7 +49,7 @@ Item {
 
         QGCButton {
             visible:                hoverHandler.hovered || valueArea.settingsUnlocked
-            iconSource:             valueArea.settingsUnlocked ? "/res/LockOpen.svg" : "/res/pencil.svg"
+            iconSource:             valueArea.settingsUnlocked ? "/res/pencil-finished.svg" : "/res/pencil.svg"
             Layout.preferredWidth:  height*2
             onClicked:              valueArea.settingsUnlocked = !valueArea.settingsUnlocked
         }
