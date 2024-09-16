@@ -127,14 +127,14 @@ T.HorizontalFactValueGrid {
 
                 QGCButton {
                     Layout.fillHeight:      true
-                    text:                   qsTr("+")
+                    iconSource:             "/res/add-col.svg"
                     enabled:                (_root.width + (2 * (_rowButtonWidth + _margins))) < screen.width
                     onClicked:              appendColumn()
                 }
 
                 QGCButton {
                     Layout.fillHeight:      true
-                    text:                   qsTr("-")
+                    iconSource:             "/res/del-col.svg"
                     enabled:                _root.columns.count > 1
                     onClicked:              deleteLastColumn()
                 }
@@ -149,15 +149,14 @@ T.HorizontalFactValueGrid {
 
             QGCButton {
                 Layout.fillWidth:       true
-                text:                   qsTr("+")
+                iconSource:             "/res/add-row.svg"
                 enabled:                (_root.height + (2 * (_rowButtonHeight + _margins))) < (screen.height - ScreenTools.toolbarHeight)
                 onClicked:              appendRow()
             }
 
             QGCButton {
                 Layout.fillWidth:       true
-                Layout.preferredHeight: parent.height
-                text:                   qsTr("-")
+                iconSource:             "/res/del-row.svg"
                 enabled:                _root.rowCount > 1
                 onClicked:              deleteLastRow()
             }
