@@ -9,9 +9,6 @@
         <file alias="action.svg">resources/action.svg</file>
         <file alias="add-col.svg">resources/add-col.svg</file>
         <file alias="add-row.svg">resources/add-row.svg</file>
-        <file alias="AntennaRC">resources/Antenna_RC.svg</file>
-        <file alias="AntennaT">resources/Antenna_T.svg</file>
-        <file alias="ArrowDown.svg">resources/ArrowDown.svg</file>
         <file alias="ArrowRight.svg">resources/ArrowRight.svg</file>
         <file alias="buttonLeft.svg">resources/buttonLeft.svg</file>
         <file alias="buttonRight.svg">resources/buttonRight.svg</file>
@@ -46,15 +43,10 @@
         <file alias="QGCLogoArrow">resources/QGCLogoArrow.svg</file>
         <file alias="QGroundControlConnect">resources/QGroundControlConnect.svg</file>
         <file alias="rtl.svg">resources/rtl.svg</file>
-        <file alias="SplashScreen">resources/SplashScreen.png</file>
         <file alias="Stop">resources/Stop.svg</file>
         <file alias="takeoff.svg">resources/takeoff.svg</file>
         <file alias="TrashDelete.svg">resources/TrashDelete.svg</file>
         <file alias="waves.svg">resources/waves.svg</file>
-        <file alias="wind-guru.svg">resources/wind-guru.svg</file>
-        <file alias="wind-rose.svg">resources/wind-rose.svg</file>
-        <file alias="wind-roseBlack.svg">resources/wind-roseBlack.svg</file>
-        <file alias="wind-rose-arrow.svg">resources/wind-rose-arrow.svg</file>
         <file alias="XDelete.svg">resources/XDelete.svg</file>
         <file alias="XDeleteBlack.svg">resources/XDeleteBlack.svg</file>
         <file alias="waypoint.svg">resources/waypoint.svg</file>
