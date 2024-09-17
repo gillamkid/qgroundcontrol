@@ -32,6 +32,13 @@ Item {
         opacity:    0.75
     }
 
+    QGCMouseArea {
+        id:                     mouseArea
+        anchors.fill:           parent
+        visible:                ScreenTools.isMobile && !valueArea.settingsUnlocked
+        onClicked:              valueArea.settingsUnlocked = true
+    }
+
     //DeadMouseArea { anchors.fill: parent }
 
     ColumnLayout {
@@ -41,7 +48,7 @@ Item {
         anchors.left:       parent.left
 
         RowLayout {
-            visible: mouseArea.containsMouse || valueArea.settingsUnlocked
+            visible: hoverHandler.hovered || valueArea.settingsUnlocked
 
             QGCColoredImage {
                 source:             valueArea.settingsUnlocked ? "/res/LockOpen.svg" : "/res/pencil.svg"
@@ -68,23 +75,8 @@ Item {
         }
     }
 
-    QGCMouseArea {
-        id:                         mouseArea
-        x:                          mainLayout.x
-        y:                          mainLayout.y
-        width:                      mainLayout.width
-        height:                     mainLayout.height
-        hoverEnabled:               !ScreenTools.isMobile
-        propagateComposedEvents:    true
-        visible:                    !valueArea.settingsUnlocked
-
-        onClicked: (mouse) => {
-            if (ScreenTools.isMobile) {
-                valueArea.settingsUnlocked = true
-                mouse.accepted = true
-            } else {
-                mouse.accepted = false
-            }
-        }
+    HoverHandler {
+        id: hoverHandler
+        enabled: !ScreenTools.isMobile
     }
 }
