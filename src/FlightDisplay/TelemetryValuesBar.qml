@@ -47,25 +47,11 @@ Item {
         anchors.bottom:     parent.bottom
         anchors.left:       parent.left
 
-        RowLayout {
-            visible: hoverHandler.hovered || valueArea.settingsUnlocked
-
-            QGCColoredImage {
-                source:             valueArea.settingsUnlocked ? "/res/LockOpen.svg" : "/res/pencil.svg"
-                mipmap:             true
-                width:              ScreenTools.minTouchPixels * 0.75
-                height:             width
-                sourceSize.width:   width
-                color:              qgcPal.text
-                fillMode:           Image.PreserveAspectFit
-
-                QGCMouseArea {
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape:  Qt.PointingHandCursor
-                    onClicked:    valueArea.settingsUnlocked = !valueArea.settingsUnlocked
-                }
-            }
+        QGCButton {
+            visible:                hoverHandler.hovered || valueArea.settingsUnlocked
+            iconSource:             valueArea.settingsUnlocked ? "/res/LockOpen.svg" : "/res/pencil.svg"
+            Layout.preferredWidth:  height*2
+            onClicked:              valueArea.settingsUnlocked = !valueArea.settingsUnlocked
         }
 
         HorizontalFactValueGrid {
