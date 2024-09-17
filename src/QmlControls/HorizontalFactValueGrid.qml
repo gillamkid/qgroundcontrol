@@ -50,7 +50,7 @@ T.HorizontalFactValueGrid {
 
                     GridLayout {
                         rows:           object.count
-                        columns:        2
+                        columns:        settingsUnlocked ? 3 : 2
                         rowSpacing:     0
                         columnSpacing:  ScreenTools.defaultFontPixelWidth / 4
                         flow:           GridLayout.TopToBottom
@@ -106,6 +106,19 @@ T.HorizontalFactValueGrid {
                                 }
                             }
                         }
+
+                        Repeater {
+                            model:  object
+                            QGCButton {
+                                primary:                true
+                                visible:                settingsUnlocked
+                                iconSource:             "/res/pencil.svg"
+                                onClicked:              valueEditDialog.createObject(mainWindow, { instrumentValueData: object }).open()
+                                leftPadding:            topPadding
+                                Layout.preferredWidth:  height
+                                scale:                  .75
+                            }
+                        }
                     }
                 }
             }
@@ -150,28 +163,6 @@ T.HorizontalFactValueGrid {
                 text:                   qsTr("-")
                 enabled:                _root.rowCount > 1
                 onClicked:              deleteLastRow()
-            }
-        }
-    }
-
-    QGCMouseArea {
-        x:          labelValueColumnLayout.x
-        y:          labelValueColumnLayout.y
-        width:      labelValueColumnLayout.width
-        height:     labelValueColumnLayout.height
-        visible:    settingsUnlocked
-        cursorShape:Qt.PointingHandCursor
-
-        property var mappedLabelValueColumnLayoutPosition: _root.mapFromItem(labelValueColumnLayout, labelValueColumnLayout.x, labelValueColumnLayout.y)
-
-        onClicked: (mouse) => {
-            var columnGridLayoutItem = labelValueColumnLayout.childAt(mouse.x, mouse.y)
-            //console.log(mouse.x, mouse.y, columnGridLayoutItem)
-            var mappedMouse = labelValueColumnLayout.mapToItem(columnGridLayoutItem, mouse.x, mouse.y)
-            var labelOrDataItem = columnGridLayoutItem.childAt(mappedMouse.x, mappedMouse.y)
-            //console.log(mappedMouse.x, mappedMouse.y, labelOrDataItem, labelOrDataItem ? labelOrDataItem.instrumentValueData : "null", labelOrDataItem && labelOrDataItem.parent ? labelOrDataItem.parent.instrumentValueData : "null")
-            if (labelOrDataItem && labelOrDataItem.instrumentValueData !== undefined) {
-                valueEditDialog.createObject(mainWindow, { instrumentValueData: labelOrDataItem.instrumentValueData }).open()
             }
         }
     }
