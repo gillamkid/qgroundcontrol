@@ -110,10 +110,13 @@ T.HorizontalFactValueGrid {
                         Repeater {
                             model:  object
                             QGCButton {
-                                primary:        true
-                                visible:        settingsUnlocked
-                                iconSource:     "/res/pencil.svg"
-                                onClicked:      valueEditDialog.createObject(mainWindow, { instrumentValueData: object }).open()
+                                primary:                true
+                                visible:                settingsUnlocked
+                                iconSource:             "/res/pencil.svg"
+                                onClicked:              valueEditDialog.createObject(mainWindow, { instrumentValueData: object }).open()
+                                leftPadding:            topPadding
+                                Layout.preferredWidth:  height
+                                scale:                  .75
                             }
                         }
                     }
