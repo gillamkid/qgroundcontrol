@@ -48,10 +48,25 @@ Item {
         anchors.left:       parent.left
 
         QGCButton {
-            visible:                hoverHandler.hovered || valueArea.settingsUnlocked
-            iconSource:             valueArea.settingsUnlocked ? "/res/pencil-finished.svg" : "/res/pencil.svg"
-            Layout.preferredWidth:  height*2
-            onClicked:              valueArea.settingsUnlocked = !valueArea.settingsUnlocked
+            visible:                hoverHandler.hovered && !valueArea.settingsUnlocked
+            iconSource:             "/res/pencil.svg"
+            Layout.preferredWidth:  height
+            Layout.topMargin:       -_toolsMargin*2
+            Layout.leftMargin:      -_toolsMargin*2
+            Layout.bottomMargin:    -_toolsMargin*2
+            backgroundColor:        "transparent"
+            showBorder:             false
+            textColor:              qgcPal.text
+            leftPadding:            topPadding
+            scale:                  .75
+            onClicked:              valueArea.settingsUnlocked = true
+        }
+
+        QGCButton {
+            visible:                valueArea.settingsUnlocked
+            iconSource:             "/res/pencil-finished.svg"
+            text:                   qsTr("Close")
+            onClicked:              valueArea.settingsUnlocked = false
         }
 
         HorizontalFactValueGrid {

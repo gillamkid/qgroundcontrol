@@ -244,6 +244,7 @@ QGCPopupDialog {
 
                 Loader {
                     id:                     rangeLoader
+                    visible:                sourceComponent
                     Layout.columnSpan:      2
                     Layout.alignment:       Qt.AlignHCenter
                     Layout.margins:         ScreenTools.defaultFontPixelWidth
