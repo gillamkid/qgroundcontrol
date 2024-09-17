@@ -324,7 +324,7 @@ QGCPopupDialog {
                 }
 
                 QGCButton {
-                    text:       qsTr("Add Row")
+                    iconSource: "/res/add-row.svg"
                     onClicked:  instrumentValueData.addRangeValue()
                 }
             }
@@ -423,7 +423,7 @@ QGCPopupDialog {
                 }
 
                 QGCButton {
-                    text:       qsTr("Add Row")
+                    iconSource: "/res/add-row.svg"
                     onClicked:  instrumentValueData.addRangeValue()
                 }
             }
@@ -508,7 +508,7 @@ QGCPopupDialog {
                 }
 
                 QGCButton {
-                    text:       qsTr("Add Row")
+                    iconSource: "/res/add-row.svg"
                     onClicked:  instrumentValueData.addRangeValue()
                 }
             }

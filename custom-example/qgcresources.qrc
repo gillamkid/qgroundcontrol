@@ -7,6 +7,8 @@
 	</qresource>
 	<qresource prefix="/res">
 		<file alias="action.svg">../resources/action.svg</file>
+		<file alias="add-col.svg">resources/add-col.svg</file>
+        <file alias="add-row.svg">resources/add-row.svg</file>
 		<file alias="AntennaRC">../resources/Antenna_RC.svg</file>
 		<file alias="AntennaT">../resources/Antenna_T.svg</file>
 		<file alias="ArrowDown.svg">../resources/ArrowDown.svg</file>
@@ -18,6 +20,8 @@
 		<file alias="counter-clockwise-arrow.svg">../resources/counter-clockwise-arrow.svg</file>
 		<file alias="chevron-down.svg">../resources/chevron-down.svg</file>
 		<file alias="chevron-up.svg">../resources/chevron-up.svg</file>
+        <file alias="del-col.svg">resources/del-col.svg</file>
+        <file alias="del-row.svg">resources/del-row.svg</file>
 		<file alias="DropArrow.svg">../resources/DropArrow.svg</file>
 		<file alias="gear-black.svg">../resources/gear-black.svg</file>
 		<file alias="gear-white.svg">../resources/gear-white.svg</file>
