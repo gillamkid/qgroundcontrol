@@ -9,12 +9,14 @@
 
 #include "GimbalController.h"
 #include "Vehicle.h"
+#include "QGCApplication.h"
 #include "SettingsManager.h"
 #include "GimbalControllerSettings.h"
 #include "QGCLoggingCategory.h"
 #include "ParameterManager.h"
 #include "MAVLinkProtocol.h"
 
+#include <QQuickWindow>
 #include <QtQml/QQmlEngine>
 
 QGC_LOGGING_CATEGORY(GimbalLog, "GimbalLog")
@@ -431,7 +433,29 @@ bool GimbalController::_tryGetGimbalControl()
     // This means other component is in control, show popup
     if (_activeGimbal->gimbalOthersHaveControl()) {
         qCDebug(GimbalLog) << "Others in control, showing popup for user to confirm control..";
-        emit showAcquireGimbalControlPopup();
+        if(_acquirePopupExists){
+            qCDebug(GimbalLog) << "Ignoring command: Acquire Popup already shown.";
+        }
+        else {
+            QVariant varReturn;
+            QVariant varMessage = QVariant::fromValue( QStringLiteral(R"(
+                import QtQuick
+                import QtQuick.Controls
+                import QtQuick.Dialogs
+                import QGroundControl
+                import QGroundControl.Controls
+
+                QGCSimpleMessageDialog {
+                    title:                  "Request Gimbal Control?"
+                    text:                   "Command not sent. Another user has control of the gimbal."
+                    buttons:                Dialog.Yes | Dialog.No
+                    Component.onCompleted:  visible = true
+                    onAccepted:             QGroundControl.multiVehicleManager.activeVehicle.gimbalController.closeAcquirePopup(true)
+                    onRejected:             QGroundControl.multiVehicleManager.activeVehicle.gimbalController.closeAcquirePopup(false)
+                })"));
+            QMetaObject::invokeMethod(qobject_cast<QObject*>(qgcApp()->mainRootWindow()), "createItem", Q_RETURN_ARG(QVariant, varReturn), Q_ARG(QVariant, varMessage));
+            _acquirePopupExists = true;
+        }
         return false;
     // This means nobody is in control, so we can adquire directly and attempt to control
     } else if (!_activeGimbal->gimbalHaveControl()) {
@@ -439,6 +463,14 @@ bool GimbalController::_tryGetGimbalControl()
         acquireGimbalControl();
     }
     return true;
+}
+
+void GimbalController::closeAcquirePopup(bool doAcquire)
+{
+    if(doAcquire){
+        acquireGimbalControl();
+    }
+    _acquirePopupExists = false;
 }
 
 bool GimbalController::_yawInVehicleFrame(uint32_t flags)

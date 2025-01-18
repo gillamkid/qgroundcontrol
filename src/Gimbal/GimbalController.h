@@ -175,6 +175,7 @@ public:
     Q_INVOKABLE void toggleGimbalRetracted  (bool set = false);
     Q_INVOKABLE void toggleGimbalYawLock    (bool set = false);
     Q_INVOKABLE void acquireGimbalControl   ();
+    Q_INVOKABLE void closeAcquirePopup      (bool doAcquire);
     Q_INVOKABLE void releaseGimbalControl   ();
     Q_INVOKABLE void sendRate               ();
 
@@ -189,7 +190,6 @@ public slots:
 
 signals:
     void    activeGimbalChanged           ();
-    void    showAcquireGimbalControlPopup (); // This triggers a popup in QML asking the user for aproval to take control
 
 private slots:
     void    _mavlinkMessageReceived(const mavlink_message_t& message);
@@ -210,6 +210,8 @@ private:
     Gimbal*             _activeGimbal       = nullptr;
 
     QTimer*             _rateSenderTimer    = nullptr;
+    
+    bool                _acquirePopupExists = false;
 
     QMap<uint8_t, PotentialGimbalManager> _potentialGimbalManagers; // key is compid
 

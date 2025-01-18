@@ -168,6 +168,15 @@ ApplicationWindow {
         showMessageDialog(dialogTitle, dialogText)
     }
 
+    // Used by C++ to create items in QML. Useful when item being created needs to use context 
+    // properties like mainWindow, globals etc. which are not accessible when QML is created in C++
+    function createItem(qmlStr) {
+        var component = Qt.createQmlObject(qmlStr, mainWindow, "dynamicSnippet");
+        if (component.status === Component.Error) {
+            console.log("Error loading component:", component.errorString());
+        }
+    }
+
     Component {
         id: simpleMessageDialogComponent
 
