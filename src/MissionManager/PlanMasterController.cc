@@ -59,9 +59,10 @@ PlanMasterController::PlanMasterController(MAV_AUTOPILOT firmwareType, MAV_TYPE 
 
 void PlanMasterController::_commonInit(void)
 {
-    connect(&_missionController,    &MissionController::dirtyChanged,               this, &PlanMasterController::dirtyChanged);
-    connect(&_geoFenceController,   &GeoFenceController::dirtyChanged,              this, &PlanMasterController::dirtyChanged);
-    connect(&_rallyPointController, &RallyPointController::dirtyChanged,            this, &PlanMasterController::dirtyChanged);
+    _prevDirty = dirty();
+    connect(&_missionController,    &MissionController::dirtyChanged,               this, &PlanMasterController::_dirtyChanged);
+    connect(&_geoFenceController,   &GeoFenceController::dirtyChanged,              this, &PlanMasterController::_dirtyChanged);
+    connect(&_rallyPointController, &RallyPointController::dirtyChanged,            this, &PlanMasterController::_dirtyChanged);
 
     connect(&_missionController,    &MissionController::containsItemsChanged,       this, &PlanMasterController::containsItemsChanged);
     connect(&_geoFenceController,   &GeoFenceController::containsItemsChanged,      this, &PlanMasterController::containsItemsChanged);
@@ -193,9 +194,23 @@ void PlanMasterController::_activeVehicleChanged(Vehicle* activeVehicle)
     // Vehicle changed so we need to signal everything
     emit containsItemsChanged(containsItems());
     emit syncInProgressChanged();
-    emit dirtyChanged(dirty());
+    _dirtyChanged(dirty());
 
     _updatePlanCreatorsList();
+}
+
+void PlanMasterController::_dirtyChanged(bool val){
+    _callCount++;
+
+    if(dirty() == _prevDirty){
+        _unnecessaryCallCount++;
+    }
+    if(val != dirty()){
+        _badArgCallCount++;
+    }
+    _prevDirty = dirty();
+    qCritical() << "_callCount: " << _callCount << " _badArgCallCount: " << _badArgCallCount << " _unnecessaryCallCount: " << _unnecessaryCallCount << " _flyView: " << _flyView << " this: " << this;
+    emit dirtyChanged(val);
 }
 
 void PlanMasterController::loadFromVehicle(void)

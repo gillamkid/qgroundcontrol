@@ -152,4 +152,11 @@ private:
     QString                 _currentPlanFile;
     bool                    _deleteWhenSendCompleted =  false;
     QmlObjectListModel*     _planCreators =             nullptr;
+
+    // temp: for dirtyChanged signal profiling
+    void _dirtyChanged(bool val);
+    int _callCount = 0;
+    int _unnecessaryCallCount = 0;
+    int _badArgCallCount = 0;
+    bool _prevDirty = false;
 };
