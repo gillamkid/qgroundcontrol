@@ -614,6 +614,8 @@ void PlanMasterController::_updateDirty(void)
 {
     if(_previousDirty != dirty()){
         _previousDirty = dirty();
+        _callCount++;
+        qCritical() << "_callCount: " << _callCount << " _badArgCallCount: 0 _unnecessaryCallCount: 0 _flyView: " << _flyView << " this: " << this;
         emit dirtyChanged(_previousDirty);
     }    
 }

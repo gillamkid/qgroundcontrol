@@ -154,4 +154,7 @@ private:
     bool                    _deleteWhenSendCompleted =  false;
     bool                    _previousDirty =            false;
     QmlObjectListModel*     _planCreators =             nullptr;
+
+    // temp: for dirtyChanged signal profiling
+    int _callCount = 0;
 };
