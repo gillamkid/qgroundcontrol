@@ -52,10 +52,26 @@ Item {
         bottomEdgeRightInset:   virtualJoystickMultiTouch.visible ? virtualJoystickMultiTouch.bottomEdgeRightInset : bottomRightRowLayout.bottomEdgeRightInset
     }
 
+    HideButton {
+        side:                   side_RIGHT
+        visible:                topRightPanel.visible
+        anchors.right:          topRightPanel.left
+        anchors.bottom:         topRightPanel.bottom
+
+        HideButtonValue {
+            id: trPanelMarginCalc
+            valueWhenMinimized: _toolsMargin - topRightPanel.width
+            valueWhenExpanded:  0
+        }
+    }
+
+    QGCPalette { id: qgcPal }
+
     FlyViewTopRightPanel {
         id:                     topRightPanel
         anchors.top:            parent.top
         anchors.right:          parent.right
+        anchors.rightMargin:    trPanelMarginCalc.value
         maximumHeight:          parent.height - (bottomRightRowLayout.height + _margins * 4)
 
         property real topEdgeRightInset:    height + _layoutMargin
@@ -64,8 +80,8 @@ Item {
     }
 
     HideButton {
-        id:                     cameraHideButton
         side:                   side_RIGHT
+        visible:                topRightColumnLayout.visible
         anchors.right:          topRightColumnLayout.left
         anchors.top:            topRightColumnLayout.top
 
