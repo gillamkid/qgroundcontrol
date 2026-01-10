@@ -63,10 +63,24 @@ Item {
         property real rightEdgeCenterInset: rightEdgeTopInset
     }
 
+    HideButton {
+        id:                     cameraHideButton
+        side:                   side_RIGHT
+        anchors.right:          topRightColumnLayout.left
+        anchors.top:            topRightColumnLayout.top
+
+        HideButtonValue {
+            id: trColumnMarginCalc
+            valueWhenMinimized: _toolsMargin - topRightColumnLayout.width
+            valueWhenExpanded:  0
+        }
+    }
+
     FlyViewTopRightColumnLayout {
         id:                 topRightColumnLayout
         anchors.top:        parent.top
         anchors.right:      parent.right
+        anchors.rightMargin: trColumnMarginCalc.value
         spacing:            _layoutSpacing
         visible:           !topRightPanel.visible
 
@@ -138,9 +152,23 @@ Item {
         }
     }
 
+    HideButton {
+        id:                     toolStripHideButton
+        side:                   side_LEFT
+        anchors.left:           toolStrip.right
+        anchors.bottom:         toolStrip.bottom
+
+        HideButtonValue {
+            id: toolStripMarginCalc
+            valueWhenMinimized: _toolsMargin - toolStrip.width
+            valueWhenExpanded:  0
+        }
+    }
+
     FlyViewToolStrip {
         id:                     toolStrip
         anchors.left:           parent.left
+        anchors.leftMargin:     toolStripMarginCalc.value
         anchors.top:            parent.top
         z:                      QGroundControl.zOrderWidgets
         maxHeight:              parent.height - y - parentToolInsets.bottomEdgeLeftInset - _toolsMargin
