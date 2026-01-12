@@ -26,13 +26,14 @@ QGCMouseArea {
 
     // Visuals (smaller than hit box)
     Rectangle {
-        opacity: 0.66 + .24 * ratioMovedForHover
+        id:                         background
+        opacity:                    0.66 + .24 * ratioMovedForHover
 
-        property real ratioMovedForHover: hovered ? 1 : 0
+        property real ratioMovedForHover: containsMouse ? 1 : 0
         Behavior on ratioMovedForHover { NumberAnimation { duration: 150 } }
         
-        height:                     ScreenTools.defaultFontPixelWidth * 2/3 * heightRatio
-        width:                      ScreenTools.defaultFontPixelWidth * 2/3 * widthRatio
+        height:                     Math.min(ScreenTools.defaultFontPixelWidth * 2/3 * heightRatio, parent.height)
+        width:                      Math.min(ScreenTools.defaultFontPixelWidth * 2/3 * widthRatio, parent.width)
         color:                      qgcPal.window
         radius:                     ScreenTools.defaultFontPixelWidth / 4
 
@@ -55,15 +56,15 @@ QGCMouseArea {
             radius:         parent.radius
         }
         
-        QGCColoredImage {
-            id:                 icon
-            source:             "qrc:/InstrumentValueIcons/cheveron-left.svg"
-            fillMode:           Image.PreserveAspectFit
-            anchors.centerIn:   parent
-            sourceSize.height:  height
-            height:             parent.height
-            width:              height
-            color:              qgcPal.text
-        }
+    }
+    QGCColoredImage {
+        id:                 icon
+        source:             "qrc:/InstrumentValueIcons/cheveron-left.svg"
+        fillMode:           Image.PreserveAspectFit
+        anchors.centerIn:   background
+        sourceSize.height:  height
+        height:             background.height
+        width:              height
+        color:              qgcPal.text
     }
 }

@@ -11,7 +11,7 @@ Rectangle {
     id:             topRightPanel
     width:          contentWidth
     height:         Math.max(contentHeight, minimumHeight)
-    color:          qgcPal.toolbarBackground
+    color:          qgcPal.windowTransparent
     radius:         ScreenTools.defaultFontPixelHeight / 2
     visible:        !QGroundControl.videoManager.fullScreen && _multipleVehicles && _settingEnableMVPanel
     clip:           true

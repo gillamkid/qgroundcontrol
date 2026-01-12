@@ -107,9 +107,11 @@ Item {
     }
 
     // MouseArea to drag in order to resize the PiP area
-    MouseArea {
-        id:                 pipResize
-        anchors.fill:       pipResizeIcon
+    CornerButtonMouseArea {
+        id:             pipResize
+        corner:         corner_TOP_RIGHT
+        visible:        !ScreenTools.isMobile
+
         preventStealing:    true
         cursorShape:        Qt.PointingHandCursor
 
@@ -117,13 +119,13 @@ Item {
         property real initialWidth: 0
 
         onPressed: (mouse) => {
-            // Remove the anchor so the our mouse coordinates stay in the same original place for drag tracking
-            pipResize.anchors.fill = undefined
             pipResize.initialX = mouse.x
             pipResize.initialWidth = _root.width
         }
 
-        onReleased: pipResize.anchors.fill = pipResizeIcon
+        // Remove the anchor so the our mouse coordinates stay in the same original place for drag tracking
+        anchors.top: pressed ? undefined : parent.top
+        anchors.right: pressed ? undefined : parent.right
 
         // Drag
         onPositionChanged: (mouse) => {
@@ -136,19 +138,9 @@ Item {
             }
         }
     }
-
-    // Resize icon
-    Image {
-        id:             pipResizeIcon
+    CornerButton {
+        mouseArea:      pipResize
         source:         "/qmlimages/pipResize.svg"
-        fillMode:       Image.PreserveAspectFit
-        mipmap:         true
-        anchors.right:  parent.right
-        anchors.top:    parent.top
-        visible:        _isExpanded && (ScreenTools.isMobile || pipMouseArea.containsMouse)
-        height:         ScreenTools.defaultFontPixelHeight * 2.5
-        width:          ScreenTools.defaultFontPixelHeight * 2.5
-        sourceSize.height:  height
     }
 
     // Check min/max constraints on pip size when when parent is resized
@@ -170,38 +162,114 @@ Item {
     }
 
     // Pip to Window
-    Image {
+    CornerButtonMouseArea {
         id:             popupPIP
+        corner:         corner_TOP_LEFT 
+        visible:        !ScreenTools.isMobile
+        onClicked:      _pipOrWindowItem.pipState.state = _pipOrWindowItem.pipState.windowState
+    }
+    CornerButton {
+        mouseArea:      popupPIP
         source:         "/qmlimages/PiP.svg"
-        mipmap:         true
-        fillMode:       Image.PreserveAspectFit
-        anchors.left:   parent.left
-        anchors.top:    parent.top
-        visible:        _isExpanded && !ScreenTools.isMobile && pipMouseArea.containsMouse
-        height:         ScreenTools.defaultFontPixelHeight * 2.5
-        width:          ScreenTools.defaultFontPixelHeight * 2.5
-        sourceSize.height:  height
-
-        MouseArea {
-            anchors.fill:   parent
-            onClicked:      _pipOrWindowItem.pipState.state = _pipOrWindowItem.pipState.windowState
-        }
     }
 
-    Image {
+    CornerButtonMouseArea {
         id:             hidePIP
+        corner:         corner_BOTTOM_LEFT 
+        onClicked:      _root._setPipIsExpanded(false)
+    }
+    CornerButton {
+        mouseArea:      hidePIP
         source:         "/qmlimages/pipHide.svg"
-        mipmap:         true
-        fillMode:       Image.PreserveAspectFit
-        anchors.left:   parent.left
-        anchors.bottom: parent.bottom
-        visible:        _isExpanded && (ScreenTools.isMobile || pipMouseArea.containsMouse)
-        height:         ScreenTools.defaultFontPixelHeight * 2.5
-        width:          ScreenTools.defaultFontPixelHeight * 2.5
-        sourceSize.height:  height
-        MouseArea {
-            anchors.fill:   parent
-            onClicked:      _root._setPipIsExpanded(false)
+    }
+
+    component CornerButtonMouseArea: MouseArea {
+
+        required property int corner
+
+
+        height:         ScreenTools.defaultFontPixelWidth * 6
+        width:          ScreenTools.defaultFontPixelWidth * 6
+
+        property bool hovered: pipMouseArea.containsMouse 
+            && ( ((corner == corner_TOP_LEFT || corner == corner_BOTTOM_LEFT) && pipMouseArea.mouseX <= width) 
+                || ((corner == corner_TOP_RIGHT || corner == corner_BOTTOM_RIGHT) && pipMouseArea.mouseX >= x ) )
+            && ( ((corner == corner_BOTTOM_RIGHT || corner == corner_BOTTOM_LEFT) && pipMouseArea.mouseY >= y)
+                || ((corner == corner_TOP_RIGHT || corner == corner_TOP_LEFT) &&pipMouseArea.mouseY <= height) )
+
+        
+        anchors.top:    (corner == corner_TOP_LEFT || corner == corner_TOP_RIGHT) ? parent.top : undefined
+        anchors.bottom: (corner == corner_BOTTOM_LEFT || corner == corner_BOTTOM_RIGHT) ? parent.bottom : undefined
+        anchors.left:   (corner == corner_TOP_LEFT || corner == corner_BOTTOM_LEFT) ? parent.left : undefined
+        anchors.right:  (corner == corner_TOP_RIGHT || corner == corner_BOTTOM_RIGHT) ? parent.right : undefined
+    }
+
+    readonly property int corner_TOP_LEFT:      1
+    readonly property int corner_TOP_RIGHT:     2
+    readonly property int corner_BOTTOM_LEFT:   3
+    readonly property int corner_BOTTOM_RIGHT:  4
+
+    component CornerButton: Item {
+        required property var mouseArea
+        property alias source:    image.source
+
+        id:             cornerButton
+        visible:        mouseArea.visible && _isExpanded && (ScreenTools.isMobile || pipMouseArea.containsMouse)
+        width:          mouseArea.width
+        height:         mouseArea.height
+        anchors.top:    mouseArea.corner == corner_TOP_LEFT || mouseArea.corner == corner_TOP_RIGHT ? parent.top : undefined
+        anchors.bottom: mouseArea.corner == corner_BOTTOM_LEFT || mouseArea.corner == corner_BOTTOM_RIGHT ? parent.bottom : undefined
+        anchors.left:   mouseArea.corner == corner_TOP_LEFT || mouseArea.corner == corner_BOTTOM_LEFT ? parent.left : undefined
+        anchors.right:  mouseArea.corner == corner_TOP_RIGHT || mouseArea.corner == corner_BOTTOM_RIGHT ? parent.right : undefined
+
+        Item {
+            z:              -1
+            clip:           true
+            opacity:        mouseArea.pressed ? 0.55 : mouseArea.hovered ? 0.33 :  0
+
+            anchors.top:    mouseArea.corner == corner_TOP_LEFT || mouseArea.corner == corner_TOP_RIGHT ? parent.top : undefined
+            anchors.bottom: mouseArea.corner == corner_BOTTOM_LEFT || mouseArea.corner == corner_BOTTOM_RIGHT ? parent.bottom : undefined
+            anchors.left:   mouseArea.corner == corner_TOP_LEFT || mouseArea.corner == corner_BOTTOM_LEFT ? parent.left : undefined
+            anchors.right:  mouseArea.corner == corner_TOP_RIGHT || mouseArea.corner == corner_BOTTOM_RIGHT ? parent.right : undefined
+            width:          parent.width + highlightRect.border.width
+            height:         width
+
+            Rectangle {
+                id:             highlightRect
+                color:          "black"
+                width:          parent.width * 2
+                height:         width
+                x:              mouseArea.corner == corner_TOP_LEFT || mouseArea.corner == corner_BOTTOM_LEFT  ? -width / 2 : 0
+                y:              mouseArea.corner == corner_TOP_LEFT || mouseArea.corner == corner_TOP_RIGHT  ? -height / 2 : 0
+                radius:         ScreenTools.defaultFontPixelWidth
+                border.width:    ScreenTools.defaultFontPixelWidth / 2
+                border.color:    "#66FFFFFF"
+            }
+
+            //  Rectangle {
+            //     color:          "black"
+            //     width:          parent.width
+            //     height:         width
+            //     // x:              mouseArea.corner == corner_TOP_LEFT || mouseArea.corner == corner_BOTTOM_LEFT  ? -width / 2 : 0
+            //     // y:              mouseArea.corner == corner_TOP_LEFT || mouseArea.corner == corner_TOP_RIGHT  ? -height / 2 : 0
+            //     radius:         width / 2 //* .8
+            //     //border.width:    ScreenTools.defaultFontPixelWidth / 2
+            //     //border.color:    "#66FFFFFF"
+            // }
+        }
+
+        Image {
+            id:                 image
+            mipmap:             true
+            fillMode:           Image.PreserveAspectFit
+            anchors.top:        mouseArea.corner == corner_TOP_LEFT || mouseArea.corner == corner_TOP_RIGHT ? parent.top : undefined
+            anchors.bottom:     mouseArea.corner == corner_BOTTOM_LEFT || mouseArea.corner == corner_BOTTOM_RIGHT ? parent.bottom : undefined
+            anchors.left:       mouseArea.corner == corner_TOP_LEFT || mouseArea.corner == corner_BOTTOM_LEFT ? parent.left : undefined
+            anchors.right:      mouseArea.corner == corner_TOP_RIGHT || mouseArea.corner == corner_BOTTOM_RIGHT ? parent.right : undefined
+            anchors.margins:   ScreenTools.defaultFontPixelWidth
+            height:             ScreenTools.defaultFontPixelWidth * 4
+            width:              height
+            sourceSize.height:  height
         }
     }
 
@@ -213,12 +281,14 @@ Item {
         width:                  ScreenTools.defaultFontPixelHeight * 2
         radius:                 ScreenTools.defaultFontPixelHeight / 3
         visible:                !_isExpanded
-        color:                  _fullItem.pipState.isDark ? Qt.rgba(0,0,0,0.75) : Qt.rgba(0,0,0,0.5)
-        Image {
+        color:                  qgcPal.window
+        opacity:                0.66
+        QGCColoredImage {
             width:              parent.width  * 0.75
             height:             parent.height * 0.75
             sourceSize.height:  height
-            source:             "/res/buttonRight.svg"
+            source:             "qrc:/InstrumentValueIcons/cheveron-right.svg"
+            color:              qgcPal.text
             mipmap:             true
             fillMode:           Image.PreserveAspectFit
             anchors.verticalCenter:     parent.verticalCenter

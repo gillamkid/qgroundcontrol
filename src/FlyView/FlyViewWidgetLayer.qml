@@ -173,6 +173,7 @@ Item {
         side:                   side_LEFT
         anchors.left:           toolStrip.right
         anchors.bottom:         toolStrip.bottom
+        height:                 Math.min(toolStrip.height, implicitHeight)
 
         HideButtonValue {
             id: toolStripMarginCalc
