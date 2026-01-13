@@ -119,7 +119,7 @@ Item {
         id:                 pipResize
         visible:            pipResizeButton.visible
         preventStealing:    true
-        cursorShape:        Qt.PointingHandCursor
+        cursorShape:        pressed ? Qt.ClosedHandCursor : Qt.OpenHandCursor
 
         property real initialX:     0
         property real initialWidth: 0
@@ -270,6 +270,41 @@ Item {
         MouseArea {
             anchors.fill:   parent
             onClicked:      _root._setPipIsExpanded(true)
+        }
+    }
+
+    Item {
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+
+        Rectangle {
+            id: dragRect
+            width: 30
+            height: 30
+
+            color: "red"
+
+            Drag.active: dragArea.drag.active
+            Drag.hotSpot.x: 15
+            Drag.hotSpot.y: 15
+
+            anchors.left: dragArea.drag.active ? undefined : (dragRectGhost.x < _root.parent.width/2) ? dragRectGhost.left : parent.left
+            anchors.leftMargin: (dragRectGhost.x < _root.parent.width/2) ? 0 : _root.parent.width/2
+
+            y:     -x * (9/16)
+
+            MouseArea {
+                id: dragArea
+                anchors.fill: parent
+                drag.target: parent
+                drag.axis: Drag.XAxis
+            }
+        }
+
+        Item {
+            id: dragRectGhost
+            x: _root.parent.width/5
+            anchors.left: dragArea.drag.active ? dragRect.left : undefined
         }
     }
 }
