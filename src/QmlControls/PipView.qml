@@ -273,45 +273,38 @@ Item {
         }
     }
 
-    Item {
+
+    Rectangle {
+        id: desiredVideoSize
+        color: "red"
+        opacity: .5
+        width: _root.parent.width / 5
+        height: width * (9/16)
         anchors.left: parent.left
         anchors.bottom: parent.bottom
+        anchors.right: dragArea.active && dragRect.x < _root.parent.width/2 ? dragRect.right : undefined
+    }
 
-        Rectangle {
-            color: "red"
-            opacity: .5
-            id: desiredVideoSize
-            width: _root.parent.width / 5
-            height: width * (9/16)
-            anchors.left: parent.left
-            anchors.bottom: parent.bottom
-            anchors.right: dragArea.drag.active && dragRect.x < _root.parent.width/2 ? dragRect.right : undefined
-        }
+    Rectangle {
+        id: dragRect
+        width: 30
+        height: 30
 
-        Rectangle {
-            id: dragRect
-            width: 30
-            height: 30
+        color: "red"
 
-            color: "red"
+        anchors.top: desiredVideoSize.top
+        anchors.right: dragArea.active ? undefined : (desiredVideoSize.width < _root.parent.width/2) ? desiredVideoSize.right : parent.left
+        anchors.rightMargin: (desiredVideoSize.width < _root.parent.width/2) ? 0 : -_root.parent.width/2
 
-            Drag.active: dragArea.drag.active
-            Drag.hotSpot.x: 15
-            Drag.hotSpot.y: 15
+        x: 100
 
-            anchors.right: dragArea.drag.active ? undefined : (desiredVideoSize.width < _root.parent.width/2) ? desiredVideoSize.right : parent.left
-            anchors.rightMargin: (desiredVideoSize.width < _root.parent.width/2) ? 0 : -_root.parent.width/2
 
-            y:     -x * (9/16)
+        DragHandler {
+            id: dragArea
+            target: parent
+            yAxis.enabled: false
 
-            MouseArea {
-                id: dragArea
-                anchors.fill: parent
-                drag.target: parent
-                drag.axis: Drag.XAxis
-
-                cursorShape:        pressed ? Qt.ClosedHandCursor : Qt.OpenHandCursor
-            }
+            cursorShape:        active ? Qt.ClosedHandCursor : Qt.OpenHandCursor
         }
     }
 
@@ -323,7 +316,7 @@ Item {
         width: 10000
         height: 10000
 
-        visible: dragArea.pressed
+        visible: dragArea.active
                 cursorShape:       Qt.ClosedHandCursor
     }
 }
