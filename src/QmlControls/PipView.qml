@@ -274,8 +274,19 @@ Item {
     }
 
     Item {
-        anchors.bottom: parent.bottom
         anchors.left: parent.left
+        anchors.bottom: parent.bottom
+
+        Rectangle {
+            color: "red"
+            opacity: .5
+            id: desiredVideoSize
+            width: _root.parent.width / 5
+            height: width * (9/16)
+            anchors.left: parent.left
+            anchors.bottom: parent.bottom
+            anchors.right: dragArea.drag.active && dragRect.x < _root.parent.width/2 ? dragRect.right : undefined
+        }
 
         Rectangle {
             id: dragRect
@@ -288,8 +299,8 @@ Item {
             Drag.hotSpot.x: 15
             Drag.hotSpot.y: 15
 
-            anchors.left: dragArea.drag.active ? undefined : (dragRectGhost.x < _root.parent.width/2) ? dragRectGhost.left : parent.left
-            anchors.leftMargin: (dragRectGhost.x < _root.parent.width/2) ? 0 : _root.parent.width/2
+            anchors.right: dragArea.drag.active ? undefined : (desiredVideoSize.width < _root.parent.width/2) ? desiredVideoSize.right : parent.left
+            anchors.rightMargin: (desiredVideoSize.width < _root.parent.width/2) ? 0 : -_root.parent.width/2
 
             y:     -x * (9/16)
 
@@ -301,15 +312,6 @@ Item {
 
                 cursorShape:        pressed ? Qt.ClosedHandCursor : Qt.OpenHandCursor
             }
-        }
-
-        Rectangle {
-            width: 25
-            height: 25
-            opacity: .5
-            id: dragRectGhost
-            x: _root.parent.width/5
-            anchors.left: dragArea.drag.active && dragRect.x < _root.parent.width/2 ? dragRect.left : undefined
         }
     }
 
