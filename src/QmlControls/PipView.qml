@@ -298,13 +298,30 @@ Item {
                 anchors.fill: parent
                 drag.target: parent
                 drag.axis: Drag.XAxis
+
+                cursorShape:        pressed ? Qt.ClosedHandCursor : Qt.OpenHandCursor
             }
         }
 
-        Item {
+        Rectangle {
+            width: 25
+            height: 25
+            opacity: .5
             id: dragRectGhost
             x: _root.parent.width/5
-            anchors.left: dragArea.drag.active ? dragRect.left : undefined
+            anchors.left: dragArea.drag.active && dragRect.x < _root.parent.width/2 ? dragRect.left : undefined
         }
+    }
+
+    // When doing the drag, if the mouse leaves the Mouse area handling the drag the ClosedHandCursor
+    // dissappears. This makes so that doesn't happen 
+    MouseArea {
+        x: -5000
+        y: -5000
+        width: 10000
+        height: 10000
+
+        visible: dragArea.pressed
+                cursorShape:       Qt.ClosedHandCursor
     }
 }
