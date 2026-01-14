@@ -105,6 +105,23 @@ Item {
         onClicked:      _swapPip()
     }
 
+    Rectangle {
+        color: "transparent"
+        border.width: 3
+        border.color: "red"
+        visible: behavior.enabled
+        width: visible ? pipResizeButton.drag.maximumX - pipResizeButton.drag.minimumX : 0
+        height: width * (9/16)
+        Behavior on width { 
+            id: behavior
+            enabled: pipResizeButton.pressed
+            NumberAnimation { duration: 150 }
+        }
+        anchors.left: pipResizeButton.right
+        anchors.leftMargin: -(width * (pipResizeButton.x - pipResizeButton.drag.minimumX) / (pipResizeButton.drag.maximumX - pipResizeButton.drag.minimumX))
+        anchors.top: pipResizeButton.top
+        anchors.topMargin: -(height * (1- (pipResizeButton.x - pipResizeButton.drag.minimumX) / (pipResizeButton.drag.maximumX - pipResizeButton.drag.minimumX)))
+    }
     CornerButton {
         id:                 pipResizeButton
         source:             "/qmlimages/pipResize.svg"
