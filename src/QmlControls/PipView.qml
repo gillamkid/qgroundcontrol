@@ -110,7 +110,7 @@ Item {
         source:             "/qmlimages/pipResize.svg"
         anchors.top:        parent.top
         anchors.left:       pressed ? undefined : parent.left
-        anchors.leftMargin: desiredVideoSize.width < drag.maximumX ? desiredVideoSize.width : drag.minimumX
+        anchors.leftMargin: (desiredVideoSize.width - width) < drag.maximumX ? desiredVideoSize.width - width : drag.maximumX
 
         drag.target:        pipResizeButton
         drag.axis:          Drag.XAxis
@@ -232,16 +232,15 @@ Item {
 
     // invisible: when main window is resized, this is a placemarker of the desired video size. updated every time the corner drag is done
     Rectangle {
-        id: desiredVideoSize
-        color: "red"
-        opacity: .5
-        height: width * (9/16)
-        anchors.left: parent.left
+        id:             desiredVideoSize
+        color:          "red"
+        opacity:        .5
+        height:         width * (9/16)
+        anchors.left:   parent.left
         anchors.bottom: parent.bottom
-        anchors.right: pipResizeButton.pressed ? pipResizeButton.left : undefined
-
-
-        Component.onCompleted: width = mainWindow.width/3
+        anchors.right:  pipResizeButton.pressed ? pipResizeButton.right : undefined
+        anchors.top:    pipResizeButton.pressed ? pipResizeButton.top : undefined
+        width:          mainWindow.width/3
     }
 
     // When doing the drag, if the mouse leaves the Mouse area handling the drag the ClosedHandCursor
