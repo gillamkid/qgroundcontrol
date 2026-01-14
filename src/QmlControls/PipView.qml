@@ -108,18 +108,16 @@ Item {
     CornerButton {
         id:                 pipResizeButton
         source:             "/qmlimages/pipResize.svg"
-        isPressed:          dragArea.active
         anchors.top:        parent.top
-        anchors.left:       dragArea.active ? undefined : parent.left
-        anchors.leftMargin: desiredVideoSize.width < dragArea.xAxis.maximum ? desiredVideoSize.width : dragArea.xAxis.maximum
+        anchors.left:       pressed ? undefined : parent.left
+        anchors.leftMargin: desiredVideoSize.width < drag.maximumX ? desiredVideoSize.width : drag.minimumX
 
-        DragHandler {
-            id:                 dragArea
-            xAxis.maximum :     _root.parent.width/2 - pipResizeButton.width
-            xAxis.minimum :     ScreenTools.defaultFontPixelWidth * 6 * 2 
-            yAxis.enabled:      false
-            cursorShape:        active ? Qt.ClosedHandCursor : Qt.OpenHandCursor
-        }
+        drag.target:        pipResizeButton
+        drag.axis:          Drag.XAxis
+        drag.minimumX:      ScreenTools.defaultFontPixelWidth * 6 * 2
+        drag.maximumX:      _root.parent.width/2 - pipResizeButton.width
+        Drag.active:        drag.active
+        cursorShape:        pressed ? Qt.ClosedHandCursor : Qt.OpenHandCursor
     }
 
     // MouseArea to drag in order to resize the PiP area
@@ -157,7 +155,7 @@ Item {
         // allows logic determining visiblity to be appended instead of overridden
         property bool isVisible: true
 
-        visible:        isVisible && _isExpanded && (ScreenTools.isMobile || pipMouseArea.containsMouse || popupPIP.containsMouse || hidePIP.containsMouse || pipResizeButton.containsMouse || dragArea.active)
+        visible:        isVisible && _isExpanded && (ScreenTools.isMobile || pipMouseArea.containsMouse || popupPIP.containsMouse || hidePIP.containsMouse || pipResizeButton.containsMouse || pipResizeButton.pressed)
         width:          ScreenTools.defaultFontPixelWidth * 6
         height:         width
 
@@ -240,14 +238,11 @@ Item {
         height: width * (9/16)
         anchors.left: parent.left
         anchors.bottom: parent.bottom
-        anchors.right: dragArea.active ? pipResizeButton.left : undefined
+        anchors.right: pipResizeButton.pressed ? pipResizeButton.left : undefined
 
 
         Component.onCompleted: width = mainWindow.width/3
     }
-
-
-
 
     // When doing the drag, if the mouse leaves the Mouse area handling the drag the ClosedHandCursor
     // dissappears. This makes so that doesn't happen 
@@ -257,7 +252,7 @@ Item {
         width: 10000
         height: 10000
 
-        visible: dragArea.active
-                cursorShape:       Qt.ClosedHandCursor
+        visible: pipResizeButton.pressed
+        cursorShape:       Qt.ClosedHandCursor
     }
 }
