@@ -6,8 +6,8 @@ import QGroundControl.Controls
 
 Item {
     id:         _root
-    width:      _pipSize
-    height:     _pipSize * (9/16)
+    width:      pipResizeButton.x + pipResizeButton.width
+    height:     width * (9/16)
     visible:    item2 && item2.pipState !== item2.pipState.window && show
 
     property var    item1:                  null    // Required
@@ -22,7 +22,6 @@ Item {
     property alias  _windowContentItem: window.contentItem
     property alias  _pipContentItem:    pipContent
     property bool   _isExpanded:        true
-    property real   _pipSize:           parent.width * 0.2
     property real   _maxSize:           0.75                // Percentage of parent control size
     property real   _minSize:           0.10
     property bool   _componentComplete: false
@@ -107,60 +106,24 @@ Item {
     }
 
     CornerButton {
-        id:             pipResizeButton
-        anchors.top:    parent.top
-        anchors.right:  parent.right
-        source:         "/qmlimages/pipResize.svg"
-        isPressed:      pipResize.pressed
+        id:                 pipResizeButton
+        source:             "/qmlimages/pipResize.svg"
+        isPressed:          dragArea.active
+        anchors.top:        parent.top
+        anchors.left:       dragArea.active ? undefined : parent.left
+        anchors.leftMargin: desiredVideoSize.width < dragArea.xAxis.maximum ? desiredVideoSize.width : dragArea.xAxis.maximum
+
+        DragHandler {
+            id:                 dragArea
+            xAxis.maximum :     _root.parent.width/2 - pipResizeButton.width
+            xAxis.minimum :     ScreenTools.defaultFontPixelWidth * 6 * 2 
+            yAxis.enabled:      false
+            cursorShape:        active ? Qt.ClosedHandCursor : Qt.OpenHandCursor
+        }
     }
 
     // MouseArea to drag in order to resize the PiP area
-    MouseArea {
-        id:                 pipResize
-        visible:            pipResizeButton.visible
-        preventStealing:    true
-        cursorShape:        pressed ? Qt.ClosedHandCursor : Qt.OpenHandCursor
 
-        property real initialX:     0
-        property real initialWidth: 0
-
-        onPressed: (mouse) => {
-            pipResize.initialX = mouse.x
-            pipResize.initialWidth = _root.width
-        }
-
-        // Remove the anchor so the our mouse coordinates stay in the same original place for drag tracking
-        anchors.fill: pressed ? undefined : pipResizeButton
-
-        // Drag
-        onPositionChanged: (mouse) => {
-            if (pipResize.pressed) {
-                var parentWidth = _root.parent.width
-                var newWidth = pipResize.initialWidth + mouse.x - pipResize.initialX
-                if (newWidth < parentWidth * _maxSize && newWidth > parentWidth * _minSize) {
-                    _pipSize = newWidth
-                }
-            }
-        }
-    }
-
-    // Check min/max constraints on pip size when when parent is resized
-    Connections {
-        target: _root.parent
-
-        function onWidthChanged() {
-            if (!_componentComplete) {
-                // Wait until first time setup is done
-                return
-            }
-            var parentWidth = _root.parent.width
-            if (_root.width > parentWidth * _maxSize) {
-                _pipSize = parentWidth * _maxSize
-            } else if (_root.width < parentWidth * _minSize) {
-                _pipSize = parentWidth * _minSize
-            }
-        }
-    }
 
     // Pip to Window
     CornerButton {
@@ -281,47 +244,14 @@ Item {
         height: width * (9/16)
         anchors.left: parent.left
         anchors.bottom: parent.bottom
-        anchors.right: dragArea.active ? dragRect.left : undefined
+        anchors.right: dragArea.active ? pipResizeButton.left : undefined
 
 
         Component.onCompleted: width = mainWindow.width/3
     }
 
-    Rectangle {
-        id: trueVideoSize
-        color: "blue"
-        opacity: .5
-        height: width * (9/16)
-        anchors.left: parent.left
-        anchors.bottom: parent.bottom
-        anchors.right: dragRect.right
-    }
-
-    Rectangle {
-        id: dragRect
-        width: 30
-        height: 30
-
-        color: "red"
-
-        anchors.top: trueVideoSize.top
-        anchors.left: dragArea.active ? undefined : parent.left
-        anchors.leftMargin: desiredVideoSize.width < dragArea.xAxis.maximum ? desiredVideoSize.width : dragArea.xAxis.maximum
 
 
-        Column {
-            Text {text: parent.parent.x}
-        }
-
-        DragHandler {
-            id: dragArea
-            xAxis.maximum : _root.parent.width/2 - dragRect.width
-            xAxis.minimum : ScreenTools.defaultFontPixelWidth * 6 * 3 //_root.parent.width/10
-            yAxis.enabled: false
-
-            cursorShape:        active ? Qt.ClosedHandCursor : Qt.OpenHandCursor
-        }
-    }
 
     // When doing the drag, if the mouse leaves the Mouse area handling the drag the ClosedHandCursor
     // dissappears. This makes so that doesn't happen 
