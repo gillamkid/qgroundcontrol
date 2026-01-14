@@ -109,20 +109,35 @@ Item {
         id:                 pipResizeButton
         source:             "/qmlimages/pipResize.svg"
         anchors.top:        parent.top
-        anchors.left:       pressed ? undefined : parent.left
-        anchors.leftMargin: (preferredVideoSize.width - width) < drag.maximumX 
-                                ? (preferredVideoSize.width - width) : drag.maximumX
 
+        // MouseArea to drag in order to resize the PiP area
         drag.target:        pipResizeButton
         drag.axis:          Drag.XAxis
         drag.minimumX:      ScreenTools.defaultFontPixelWidth * 6 * 2
         drag.maximumX:      _root.parent.width/2 - pipResizeButton.width
         Drag.active:        drag.active
+        anchors.left:       pressed ? undefined : parent.left
+        anchors.leftMargin: (preferredVideoSize.width - width) < drag.maximumX 
+                                ? (preferredVideoSize.width - width) : drag.maximumX
         cursorShape:        pressed ? Qt.ClosedHandCursor : Qt.OpenHandCursor
+        
+        // When doing the drag, if the mouse leaves pipResizeButton the ClosedHandCursor
+        // dissappears. This makes so that doesn't happen 
+        MouseArea {
+            parent:         Overlay.overlay
+            anchors.fill:   parent
+            visible:        pipResizeButton.pressed
+            cursorShape:    Qt.ClosedHandCursor
+        }
     }
-
-    // MouseArea to drag in order to resize the PiP area
-
+    // updated every time the corner drag is done. allows the operator to resize the window
+    // and have the video remain the last inputted size whenever possible.
+    Item {
+        id:             preferredVideoSize
+        anchors.left:   parent.left
+        anchors.right:  pipResizeButton.pressed ? pipResizeButton.right : undefined
+        width:          mainWindow.width/3 // initialWidth of Video
+    }
 
     // Pip to Window
     CornerButton {
@@ -229,24 +244,5 @@ Item {
             anchors.fill:   parent
             onClicked:      _root._setPipIsExpanded(true)
         }
-    }
-
-    // updated every time the corner drag is done. allows the operator to resize the window
-    // and have the video remain the last inputted size whenever possible.
-    Item {
-        id:             preferredVideoSize
-        anchors.left:   parent.left
-        anchors.right:  pipResizeButton.pressed ? pipResizeButton.right : undefined
-
-        width:          mainWindow.width/3 // initialWidth of Video
-    }
-
-    // When doing the drag, if the mouse leaves the Mouse area handling the drag the ClosedHandCursor
-    // dissappears. This makes so that doesn't happen 
-    MouseArea {
-        parent:         Overlay.overlay
-        anchors.fill:   parent
-        visible:        pipResizeButton.pressed
-        cursorShape:    Qt.ClosedHandCursor
-    }
+    }    
 }
