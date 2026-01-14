@@ -26,8 +26,30 @@ ApplicationWindow {
         firstRunPromptManager.nextPrompt()
     }
 
+    visibility: {
+        if (!ScreenTools.fakeMobile && ScreenTools.isMobile) {
+            return Window.FullScreen
+        }
+        if (QGroundControl.corePlugin.options.enableSaveMainWindowPosition && saveState.s.width && saveState.s.height) {
+            return saveState.s.visibility;
+        }
+        return Window.Hidden
+    }       
+    minimumWidth: Math.min(ScreenTools.defaultFontPixelWidth * 100, 
+                            (!ScreenTools.fakeMobile & !ScreenTools.isMobile) ? Screen.width : 50 /* super small, just big enough so the window still exists */ )
+    minimumHeight: Math.min(ScreenTools.defaultFontPixelWidth * 50, 
+                            (!ScreenTools.fakeMobile & !ScreenTools.isMobile) ? Screen.width : 50 /* super small, just big enough so the window still exists */ )
+
+    width: ScreenTools.fakeMobile ? ScreenTools.screenWidth
+            : QGroundControl.corePlugin.options.enableSaveMainWindowPosition && saveState.s.width && saveState.s.height ? saveState.s.width
+            : Math.min(250 * Screen.pixelDensity, Screen.width)
+    height: ScreenTools.fakeMobile ? ScreenTools.screenHeight
+            : QGroundControl.corePlugin.options.enableSaveMainWindowPosition && saveState.s.width && saveState.s.height ? saveState.s.height
+            : Math.min(150 * Screen.pixelDensity, Screen.height);
+
     /// Saves main window position and size and re-opens it in the same position and size next time
     MainWindowSavedState {
+        id: saveState
         window: mainWindow
     }
 

@@ -273,16 +273,28 @@ Item {
         }
     }
 
-
+    // invisible: when main window is resized, this is a placemarker of the desired video size. updated every time the corner drag is done
     Rectangle {
         id: desiredVideoSize
         color: "red"
         opacity: .5
-        width: _root.parent.width / 5
         height: width * (9/16)
         anchors.left: parent.left
         anchors.bottom: parent.bottom
-        anchors.right: dragArea.active && dragRect.x < _root.parent.width/2 ? dragRect.right : undefined
+        anchors.right: dragArea.active ? dragRect.left : undefined
+
+
+        Component.onCompleted: width = mainWindow.width/3
+    }
+
+    Rectangle {
+        id: trueVideoSize
+        color: "blue"
+        opacity: .5
+        height: width * (9/16)
+        anchors.left: parent.left
+        anchors.bottom: parent.bottom
+        anchors.right: dragRect.right
     }
 
     Rectangle {
@@ -292,16 +304,19 @@ Item {
 
         color: "red"
 
-        anchors.top: desiredVideoSize.top
-        anchors.right: dragArea.active ? undefined : (desiredVideoSize.width < _root.parent.width/2) ? desiredVideoSize.right : parent.left
-        anchors.rightMargin: (desiredVideoSize.width < _root.parent.width/2) ? 0 : -_root.parent.width/2
+        anchors.top: trueVideoSize.top
+        anchors.left: dragArea.active ? undefined : parent.left
+        anchors.leftMargin: desiredVideoSize.width < dragArea.xAxis.maximum ? desiredVideoSize.width : dragArea.xAxis.maximum
 
-        x: 100
 
+        Column {
+            Text {text: parent.parent.x}
+        }
 
         DragHandler {
             id: dragArea
-            target: parent
+            xAxis.maximum : _root.parent.width/2 - dragRect.width
+            xAxis.minimum : ScreenTools.defaultFontPixelWidth * 6 * 3 //_root.parent.width/10
             yAxis.enabled: false
 
             cursorShape:        active ? Qt.ClosedHandCursor : Qt.OpenHandCursor
