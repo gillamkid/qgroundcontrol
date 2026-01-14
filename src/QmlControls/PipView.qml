@@ -157,30 +157,26 @@ Item {
         // allows logic determining visiblity to be appended instead of overridden
         property bool isVisible: true
 
-        visible:        isVisible && _isExpanded && (ScreenTools.isMobile || pipMouseArea.containsMouse)
+        visible:        isVisible && _isExpanded && (ScreenTools.isMobile || pipMouseArea.containsMouse || popupPIP.containsMouse || hidePIP.containsMouse || pipResizeButton.containsMouse || dragArea.active)
         width:          ScreenTools.defaultFontPixelWidth * 6
         height:         width
 
-        property bool hovered: pipMouseArea.containsMouse 
-            && ( (hasLeftAnchor && pipMouseArea.mouseX <= width) 
-                || (hasRightAnchor && pipMouseArea.mouseX >= x ) )
-            && ( (hasBottomAnchor && pipMouseArea.mouseY >= y)
-                || (hasTopAnchor && pipMouseArea.mouseY <= height) )
+        hoverEnabled: !ScreenTools.isMobile
 
-        property bool hasTopAnchor: anchors.top == parent.top
-        property bool hasBottomAnchor: anchors.bottom == parent.bottom
-        property bool hasLeftAnchor: anchors.left == parent.left
-        property bool hasRightAnchor: anchors.right == parent.right
+        property bool anchorTop: anchors.top == parent.top
+        property bool anchorBottom: anchors.bottom == parent.bottom
+        property bool anchorLeft: anchors.left == parent.left && anchors.leftMargin == 0
+        property bool anchorRight: anchors.leftMargin || anchors.right == parent.right
 
         Item {
             z:              -1
             clip:           true
-            opacity:        isPressed ? 0.55 : hovered ? 0.33 :  0
+            opacity:        isPressed ? 0.55 : containsMouse ? 0.33 :  0
 
-            anchors.top:    hasTopAnchor ? parent.top : undefined
-            anchors.bottom: hasBottomAnchor ? parent.bottom : undefined
-            anchors.left:   hasLeftAnchor ? parent.left : undefined
-            anchors.right:  hasRightAnchor ? parent.right : undefined
+            anchors.top:    anchorTop ? parent.top : undefined
+            anchors.bottom: anchorBottom ? parent.bottom : undefined
+            anchors.left:   anchorLeft ? parent.left : undefined
+            anchors.right:  anchorRight ? parent.right : undefined
             width:          parent.width + highlightRect.border.width
             height:         width
 
@@ -189,8 +185,8 @@ Item {
                 color:          "black"
                 width:          parent.width * 2
                 height:         width
-                x:              hasLeftAnchor ? -width / 2 : 0
-                y:              hasTopAnchor ? -height / 2 : 0
+                x:              anchorLeft ? -width / 2 : 0
+                y:              anchorTop ? -height / 2 : 0
                 radius:         ScreenTools.defaultFontPixelWidth
                 border.width:   ScreenTools.defaultFontPixelWidth / 2
                 border.color:   "#66FFFFFF"
