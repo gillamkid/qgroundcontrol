@@ -149,6 +149,12 @@ Item {
                 width: maxVideoWidth - minVideoWidth
                 height: width * 9/16
 
+                Item {
+                    id: videoCorner
+                    x: _root.width - _root.minVideoWidth
+                    y: shapeContainer.height - x * 9/16
+                }
+
                 Line2 { 
                     x: 1
                     y: 1
@@ -180,8 +186,8 @@ Item {
                             y: shapeContainer.height
                         }
                         PathLine { 
-                            x: pipResizeButton.x - _root.minVideoWidth
-                            y: shapeContainer.height - x * 9/16
+                            x: videoCorner.x
+                            y: videoCorner.y
                         }
 
                     }
@@ -218,27 +224,36 @@ Item {
                             y: 0
                         }
                         PathLine { 
-                            x: pipResizeButton.x + pipResizeButton.width - _root.minVideoWidth
-                            y: shapeContainer.height - x * 9/16
+                            x: videoCorner.x
+                            y: videoCorner.y
                         }
 
                     }
                 }
 
                 Rectangle {
-                    width: ScreenTools.defaultFontPixelWidth
+                    width: ScreenTools.defaultFontPixelWidth * 2
+                    border.width: 2
+                    border.color: "black"
                     height: width
                     radius: width
-                    anchors.verticalCenter: parent.bottom
-                    anchors.horizontalCenter: parent.left
+                    anchors.centerIn: videoCorner
                 }
 
                 Rectangle {
-                    width: ScreenTools.defaultFontPixelWidth
-                    height: width
-                    radius: width
+                    width: ScreenTools.defaultFontPixelWidth * 2
+                    height: 2
+                    anchors.verticalCenter: parent.bottom
+                    anchors.horizontalCenter: parent.left
+                    rotation: 45
+                }
+
+                Rectangle {
+                    width: ScreenTools.defaultFontPixelWidth * 2
+                    height: 2
                     anchors.verticalCenter: parent.top
                     anchors.horizontalCenter: parent.right
+                    rotation: 45
                 }
             }
         }
@@ -285,6 +300,7 @@ Item {
         property bool isVisible: true
 
         visible:        isVisible && _isExpanded && (ScreenTools.isMobile || pipMouseArea.containsMouse || popupPIP.containsMouse || hidePIP.containsMouse || pipResizeButton.containsMouse || pipResizeButton.pressed)
+        opacity:        pipResizeButton.pressed ? 0 : 1
         width:          ScreenTools.defaultFontPixelWidth * 6
         height:         width
 
