@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Window
+import QtQuick.Shapes
 
 import QGroundControl
 import QGroundControl.Controls
@@ -25,6 +26,9 @@ Item {
     property real   _maxSize:           0.75                // Percentage of parent control size
     property real   _minSize:           0.10
     property bool   _componentComplete: false
+
+    property real minVideoWidth: ScreenTools.defaultFontPixelWidth * 6 * 3
+    property real maxVideoWidth: _root.parent.width/2 - pipResizeButton.width
 
     Component.onCompleted: {
         _initForItems()
@@ -105,22 +109,13 @@ Item {
         onClicked:      _swapPip()
     }
 
-    Rectangle {
-        color: "transparent"
-        border.width: 3
-        border.color: "red"
-        visible: behavior.enabled
-        width: visible ? pipResizeButton.drag.maximumX - pipResizeButton.drag.minimumX : 0
-        height: width * (9/16)
-        Behavior on width { 
-            id: behavior
-            enabled: pipResizeButton.pressed
-            NumberAnimation { duration: 150 }
-        }
-        anchors.left: pipResizeButton.right
-        anchors.leftMargin: -(width * (pipResizeButton.x - pipResizeButton.drag.minimumX) / (pipResizeButton.drag.maximumX - pipResizeButton.drag.minimumX))
-        anchors.top: pipResizeButton.top
-        anchors.topMargin: -(height * (1- (pipResizeButton.x - pipResizeButton.drag.minimumX) / (pipResizeButton.drag.maximumX - pipResizeButton.drag.minimumX)))
+    property real dashOffsetValue: 0
+    NumberAnimation on dashOffsetValue {
+        from: 0
+        to: 14
+        duration: 800
+        loops: Animation.Infinite
+        running: true
     }
     CornerButton {
         id:                 pipResizeButton
@@ -130,21 +125,122 @@ Item {
         // MouseArea to drag in order to resize the PiP area
         drag.target:        pipResizeButton
         drag.axis:          Drag.XAxis
-        drag.minimumX:      ScreenTools.defaultFontPixelWidth * 6 * 2
-        drag.maximumX:      _root.parent.width/2 - pipResizeButton.width
+        drag.minimumX:      minVideoWidth - pipResizeButton.width
+        drag.maximumX:      maxVideoWidth - pipResizeButton.height
         Drag.active:        drag.active
         anchors.left:       pressed ? undefined : parent.left
-        anchors.leftMargin: (preferredVideoSize.width - width) < drag.maximumX 
+        anchors.leftMargin: preferredVideoSize.width < maxVideoWidth
                                 ? (preferredVideoSize.width - width) : drag.maximumX
         cursorShape:        pressed ? Qt.ClosedHandCursor : Qt.OpenHandCursor
         
         // When doing the drag, if the mouse leaves pipResizeButton the ClosedHandCursor
         // dissappears. This makes so that doesn't happen 
         MouseArea {
+            id:             dragInProgressOverlay
             parent:         Overlay.overlay
             anchors.fill:   parent
             visible:        pipResizeButton.pressed
             cursorShape:    Qt.ClosedHandCursor
+
+            Item {
+                id: shapeContainer
+                x: _root.anchors.leftMargin + _root.minVideoWidth
+                y: dragInProgressOverlay.height - _root.anchors.bottomMargin +- height - _root.minVideoWidth * 9/16
+                width: maxVideoWidth - minVideoWidth
+                height: width * 9/16
+
+                Line2 { 
+                    x: 1
+                    y: 1
+                    color: "#cc000000"
+                 }
+                Line2 { 
+                    x: -1
+                    y: -1
+                    color: "#ccFFFFFF"
+                 }
+            
+                component Line2: Shape {
+                    id: shape
+                    property color color: "white"
+                    width: parent.width
+                    height: parent.height
+
+                    ShapePath {
+                        strokeWidth: 2
+                        strokeColor: shape.color
+                        fillColor: "transparent"
+
+                        strokeStyle: ShapePath.DashLine
+                        dashPattern: [8, 6]
+                        dashOffset: dashOffsetValue
+
+                        PathMove { 
+                            x: 0
+                            y: shapeContainer.height
+                        }
+                        PathLine { 
+                            x: pipResizeButton.x - _root.minVideoWidth
+                            y: shapeContainer.height - x * 9/16
+                        }
+
+                    }
+                }
+
+                Line { 
+                    x: 1
+                    y: 1
+                    color: "#cc000000"
+                 }
+                Line { 
+                    x: -1
+                    y: -1
+                    color: "#ccFFFFFF"
+                 }
+
+                component Line: Shape {
+                    id: shape
+                    property color color: "white"
+                    width: parent.width
+                    height: parent.height
+
+                    ShapePath {
+                        strokeWidth: 2
+                        strokeColor: shape.color
+                        fillColor: "transparent"
+
+                        strokeStyle: ShapePath.DashLine
+                        dashPattern: [8, 6]
+                        dashOffset: dashOffsetValue
+
+                        PathMove { 
+                            x: shapeContainer.width
+                            y: 0
+                        }
+                        PathLine { 
+                            x: pipResizeButton.x + pipResizeButton.width - _root.minVideoWidth
+                            y: shapeContainer.height - x * 9/16
+                        }
+
+                    }
+                }
+
+                Rectangle {
+                    width: ScreenTools.defaultFontPixelWidth
+                    height: width
+                    radius: width
+                    anchors.verticalCenter: parent.bottom
+                    anchors.horizontalCenter: parent.left
+                }
+
+                Rectangle {
+                    width: ScreenTools.defaultFontPixelWidth
+                    height: width
+                    radius: width
+                    anchors.verticalCenter: parent.top
+                    anchors.horizontalCenter: parent.right
+                }
+            }
         }
     }
     // updated every time the corner drag is done. allows the operator to resize the window
