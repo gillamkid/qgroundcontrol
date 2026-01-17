@@ -63,7 +63,7 @@ QGCMouseArea {
         fillMode:           Image.PreserveAspectFit
         anchors.centerIn:   background
         sourceSize.height:  height
-        height:             background.height
+        height:             ScreenTools.defaultFontPixelWidth * 2
         width:              height
         color:              qgcPal.text
     }

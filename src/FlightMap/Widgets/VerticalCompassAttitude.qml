@@ -5,7 +5,7 @@ import QGroundControl.Controls
 import QGroundControl.FlightMap
 
 Rectangle {
-    width:  ScreenTools.defaultFontPixelHeight * 10
+    width:  Math.min(ScreenTools.defaultFontPixelHeight * 10, (mainWindow.height - ScreenTools.defaultFontPixelWidth * 8) / 2)
     height: _outerRadius * 4
     radius: _outerRadius
     color:  QGroundControl.globalPalette.window
