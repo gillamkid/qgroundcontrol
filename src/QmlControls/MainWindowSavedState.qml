@@ -10,7 +10,6 @@ Item {
     property Window window
 
     property bool _enabled: !ScreenTools.isMobile && !ScreenTools.fakeMobile && QGroundControl.corePlugin.options.enableSaveMainWindowPosition
-    property alias s: s
 
     Settings {
         id:         s
@@ -23,12 +22,31 @@ Item {
         property int visibility
     }
 
+    function _setDefaultDesktopWindowSize() {
+        window.width = Math.min(250 * Screen.pixelDensity, Screen.width);
+        window.height = Math.min(150 * Screen.pixelDensity, Screen.height);
+    }
+
     Component.onCompleted: {
-        if (!ScreenTools.fakeMobile && !ScreenTools.isMobile 
-                && QGroundControl.corePlugin.options.enableSaveMainWindowPosition
-                && s.width && s.height) {
-            window.x = s.x;
-            window.y = s.y;
+        if (ScreenTools.fakeMobile) {
+            window.width = ScreenTools.screenWidth
+            window.height = ScreenTools.screenHeight
+        } else if (ScreenTools.isMobile) {
+            window.showFullScreen();
+        } else if (QGroundControl.corePlugin.options.enableSaveMainWindowPosition) {
+            window.minimumWidth = Math.min(ScreenTools.defaultFontPixelWidth * 100, Screen.width)
+            window.minimumHeight = Math.min(ScreenTools.defaultFontPixelWidth * 50, Screen.height)
+            if (s.width && s.height) {
+                window.x = s.x;
+                window.y = s.y;
+                window.width = s.width;
+                window.height = s.height;
+                window.visibility = s.visibility;
+            } else {
+                _setDefaultDesktopWindowSize()
+            }
+        } else {
+            _setDefaultDesktopWindowSize()
         }
     }
 
