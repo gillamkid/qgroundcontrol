@@ -52,10 +52,26 @@ Item {
         bottomEdgeRightInset:   virtualJoystickMultiTouch.visible ? virtualJoystickMultiTouch.bottomEdgeRightInset : bottomRightRowLayout.bottomEdgeRightInset
     }
 
+    HideButton {
+        side:                   side_RIGHT
+        visible:                topRightPanel.visible
+        anchors.right:          topRightPanel.left
+        anchors.bottom:         topRightPanel.bottom
+
+        HideButtonValue {
+            id: trPanelMarginCalc
+            valueWhenMinimized: _toolsMargin - topRightPanel.width
+            valueWhenExpanded:  0
+        }
+    }
+
+    QGCPalette { id: qgcPal }
+
     FlyViewTopRightPanel {
         id:                     topRightPanel
         anchors.top:            parent.top
         anchors.right:          parent.right
+        anchors.rightMargin:    trPanelMarginCalc.value
         maximumHeight:          parent.height - (bottomRightRowLayout.height + _margins * 4)
 
         property real topEdgeRightInset:    height + _layoutMargin
@@ -63,10 +79,24 @@ Item {
         property real rightEdgeCenterInset: rightEdgeTopInset
     }
 
+    HideButton {
+        side:                   side_RIGHT
+        visible:                topRightColumnLayout.visible
+        anchors.right:          topRightColumnLayout.left
+        anchors.top:            topRightColumnLayout.top
+
+        HideButtonValue {
+            id: trColumnMarginCalc
+            valueWhenMinimized: _toolsMargin - topRightColumnLayout.width
+            valueWhenExpanded:  0
+        }
+    }
+
     FlyViewTopRightColumnLayout {
         id:                 topRightColumnLayout
         anchors.top:        parent.top
         anchors.right:      parent.right
+        anchors.rightMargin: trColumnMarginCalc.value
         spacing:            _layoutSpacing
         visible:           !topRightPanel.visible
 
@@ -138,9 +168,24 @@ Item {
         }
     }
 
+    HideButton {
+        id:                     toolStripHideButton
+        side:                   side_LEFT
+        anchors.left:           toolStrip.right
+        anchors.bottom:         toolStrip.bottom
+        height:                 Math.min(toolStrip.height, implicitHeight)
+
+        HideButtonValue {
+            id: toolStripMarginCalc
+            valueWhenMinimized: _toolsMargin - toolStrip.width
+            valueWhenExpanded:  0
+        }
+    }
+
     FlyViewToolStrip {
         id:                     toolStrip
         anchors.left:           parent.left
+        anchors.leftMargin:     toolStripMarginCalc.value
         anchors.top:            parent.top
         z:                      QGroundControl.zOrderWidgets
         maxHeight:              parent.height - y - parentToolInsets.bottomEdgeLeftInset - _toolsMargin

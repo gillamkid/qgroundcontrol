@@ -189,7 +189,6 @@ FlightMap {
     PipState {
         id:         _pipState
         pipView:    _root.pipView
-        isDark:     _isFullWindowItemDark
     }
 
     Timer {

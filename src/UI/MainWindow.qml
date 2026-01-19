@@ -633,4 +633,27 @@ ApplicationWindow {
             }
         }
     }
+
+    Item {
+        width: 200; height: 200
+
+        Rectangle {
+            width: 20
+            height: 20
+
+            color: "red"
+
+            Drag.active: dragArea.drag.active
+            Drag.hotSpot.x: 10
+            Drag.hotSpot.y: 10
+            y: x
+
+            MouseArea {
+                id: dragArea
+                anchors.fill: parent
+                drag.target: parent
+                drag.axis: Drag.XAxis
+            }
+        }
+    }
 }

@@ -1,13 +1,14 @@
 import QtQuick
 import QtQuick.Window
+import QtQuick.Shapes
 
 import QGroundControl
 import QGroundControl.Controls
 
 Item {
     id:         _root
-    width:      _pipSize
-    height:     _pipSize * (9/16)
+    width:      pipResizeButton.x + pipResizeButton.width
+    height:     width * (9/16)
     visible:    item2 && item2.pipState !== item2.pipState.window && show
 
     property var    item1:                  null    // Required
@@ -22,10 +23,12 @@ Item {
     property alias  _windowContentItem: window.contentItem
     property alias  _pipContentItem:    pipContent
     property bool   _isExpanded:        true
-    property real   _pipSize:           parent.width * 0.2
     property real   _maxSize:           0.75                // Percentage of parent control size
     property real   _minSize:           0.10
     property bool   _componentComplete: false
+
+    property real minVideoWidth: ScreenTools.defaultFontPixelWidth * 6 * 3
+    property real maxVideoWidth: _root.parent.width/2 - pipResizeButton.width
 
     Component.onCompleted: {
         _initForItems()
@@ -106,102 +109,241 @@ Item {
         onClicked:      _swapPip()
     }
 
-    // MouseArea to drag in order to resize the PiP area
-    MouseArea {
-        id:                 pipResize
-        anchors.fill:       pipResizeIcon
-        preventStealing:    true
-        cursorShape:        Qt.PointingHandCursor
+    property real dashOffsetValue: 0
+    NumberAnimation on dashOffsetValue {
+        from: 0
+        to: 14
+        duration: 800
+        loops: Animation.Infinite
+        running: true
+    }
+    CornerButton {
+        id:                 pipResizeButton
+        source:             "/qmlimages/pipResize.svg"
+        anchors.top:        parent.top
 
-        property real initialX:     0
-        property real initialWidth: 0
+        // MouseArea to drag in order to resize the PiP area
+        drag.target:        pipResizeButton
+        drag.axis:          Drag.XAxis
+        drag.minimumX:      minVideoWidth - pipResizeButton.width
+        drag.maximumX:      maxVideoWidth - pipResizeButton.height
+        Drag.active:        drag.active
+        anchors.left:       pressed ? undefined : parent.left
+        anchors.leftMargin: preferredVideoSize.width < maxVideoWidth
+                                ? (preferredVideoSize.width - width) : drag.maximumX
+        cursorShape:        pressed ? Qt.ClosedHandCursor : Qt.OpenHandCursor
+        
+        // When doing the drag, if the mouse leaves pipResizeButton the ClosedHandCursor
+        // dissappears. This makes so that doesn't happen 
+        MouseArea {
+            id:             dragInProgressOverlay
+            parent:         Overlay.overlay
+            anchors.fill:   parent
+            visible:        pipResizeButton.pressed
+            cursorShape:    Qt.ClosedHandCursor
 
-        onPressed: (mouse) => {
-            // Remove the anchor so the our mouse coordinates stay in the same original place for drag tracking
-            pipResize.anchors.fill = undefined
-            pipResize.initialX = mouse.x
-            pipResize.initialWidth = _root.width
-        }
+            Item {
+                id: shapeContainer
+                x: _root.anchors.leftMargin + _root.minVideoWidth
+                y: dragInProgressOverlay.height - _root.anchors.bottomMargin +- height - _root.minVideoWidth * 9/16
+                width: maxVideoWidth - minVideoWidth
+                height: width * 9/16
 
-        onReleased: pipResize.anchors.fill = pipResizeIcon
+                Item {
+                    id: videoCorner
+                    x: _root.width - _root.minVideoWidth
+                    y: shapeContainer.height - x * 9/16
+                }
 
-        // Drag
-        onPositionChanged: (mouse) => {
-            if (pipResize.pressed) {
-                var parentWidth = _root.parent.width
-                var newWidth = pipResize.initialWidth + mouse.x - pipResize.initialX
-                if (newWidth < parentWidth * _maxSize && newWidth > parentWidth * _minSize) {
-                    _pipSize = newWidth
+                Line2 { 
+                    x: 1
+                    y: 1
+                    color: "#cc000000"
+                 }
+                Line2 { 
+                    x: -1
+                    y: -1
+                    color: "#ccFFFFFF"
+                 }
+            
+                component Line2: Shape {
+                    id: shape
+                    property color color: "white"
+                    width: parent.width
+                    height: parent.height
+
+                    ShapePath {
+                        strokeWidth: 2
+                        strokeColor: shape.color
+                        fillColor: "transparent"
+
+                        strokeStyle: ShapePath.DashLine
+                        dashPattern: [8, 6]
+                        dashOffset: dashOffsetValue
+
+                        PathMove { 
+                            x: 0
+                            y: shapeContainer.height
+                        }
+                        PathLine { 
+                            x: videoCorner.x
+                            y: videoCorner.y
+                        }
+
+                    }
+                }
+
+                Line { 
+                    x: 1
+                    y: 1
+                    color: "#cc000000"
+                 }
+                Line { 
+                    x: -1
+                    y: -1
+                    color: "#ccFFFFFF"
+                 }
+
+                component Line: Shape {
+                    id: shape
+                    property color color: "white"
+                    width: parent.width
+                    height: parent.height
+
+                    ShapePath {
+                        strokeWidth: 2
+                        strokeColor: shape.color
+                        fillColor: "transparent"
+
+                        strokeStyle: ShapePath.DashLine
+                        dashPattern: [8, 6]
+                        dashOffset: dashOffsetValue
+
+                        PathMove { 
+                            x: shapeContainer.width
+                            y: 0
+                        }
+                        PathLine { 
+                            x: videoCorner.x
+                            y: videoCorner.y
+                        }
+
+                    }
+                }
+
+                Rectangle {
+                    width: ScreenTools.defaultFontPixelWidth * 2
+                    border.width: 2
+                    border.color: "black"
+                    height: width
+                    radius: width
+                    anchors.centerIn: videoCorner
+                }
+
+                Rectangle {
+                    width: ScreenTools.defaultFontPixelWidth * 2
+                    height: 2
+                    anchors.verticalCenter: parent.bottom
+                    anchors.horizontalCenter: parent.left
+                    rotation: 45
+                }
+
+                Rectangle {
+                    width: ScreenTools.defaultFontPixelWidth * 2
+                    height: 2
+                    anchors.verticalCenter: parent.top
+                    anchors.horizontalCenter: parent.right
+                    rotation: 45
                 }
             }
         }
     }
-
-    // Resize icon
-    Image {
-        id:             pipResizeIcon
-        source:         "/qmlimages/pipResize.svg"
-        fillMode:       Image.PreserveAspectFit
-        mipmap:         true
-        anchors.right:  parent.right
-        anchors.top:    parent.top
-        visible:        _isExpanded && (ScreenTools.isMobile || pipMouseArea.containsMouse)
-        height:         ScreenTools.defaultFontPixelHeight * 2.5
-        width:          ScreenTools.defaultFontPixelHeight * 2.5
-        sourceSize.height:  height
-    }
-
-    // Check min/max constraints on pip size when when parent is resized
-    Connections {
-        target: _root.parent
-
-        function onWidthChanged() {
-            if (!_componentComplete) {
-                // Wait until first time setup is done
-                return
-            }
-            var parentWidth = _root.parent.width
-            if (_root.width > parentWidth * _maxSize) {
-                _pipSize = parentWidth * _maxSize
-            } else if (_root.width < parentWidth * _minSize) {
-                _pipSize = parentWidth * _minSize
-            }
-        }
+    // updated every time the corner drag is done. allows the operator to resize the window
+    // and have the video remain the last inputted size whenever possible.
+    Item {
+        id:             preferredVideoSize
+        anchors.left:   parent.left
+        anchors.right:  pipResizeButton.pressed ? pipResizeButton.right : undefined
+        width:          mainWindow.width/3 // initialWidth of Video
     }
 
     // Pip to Window
-    Image {
+    CornerButton {
         id:             popupPIP
-        source:         "/qmlimages/PiP.svg"
-        mipmap:         true
-        fillMode:       Image.PreserveAspectFit
         anchors.left:   parent.left
         anchors.top:    parent.top
-        visible:        _isExpanded && !ScreenTools.isMobile && pipMouseArea.containsMouse
-        height:         ScreenTools.defaultFontPixelHeight * 2.5
-        width:          ScreenTools.defaultFontPixelHeight * 2.5
-        sourceSize.height:  height
-
-        MouseArea {
-            anchors.fill:   parent
-            onClicked:      _pipOrWindowItem.pipState.state = _pipOrWindowItem.pipState.windowState
-        }
+        source:         "/qmlimages/PiP.svg"
+        isVisible:      !ScreenTools.isMobile
+        onClicked:      _pipOrWindowItem.pipState.state = _pipOrWindowItem.pipState.windowState
     }
 
-    Image {
+    CornerButton {
         id:             hidePIP
-        source:         "/qmlimages/pipHide.svg"
-        mipmap:         true
-        fillMode:       Image.PreserveAspectFit
         anchors.left:   parent.left
         anchors.bottom: parent.bottom
-        visible:        _isExpanded && (ScreenTools.isMobile || pipMouseArea.containsMouse)
-        height:         ScreenTools.defaultFontPixelHeight * 2.5
-        width:          ScreenTools.defaultFontPixelHeight * 2.5
-        sourceSize.height:  height
-        MouseArea {
-            anchors.fill:   parent
-            onClicked:      _root._setPipIsExpanded(false)
+        source:         "/qmlimages/pipHide.svg"
+        onClicked:      _root._setPipIsExpanded(false)
+    }
+
+    component CornerButton: MouseArea {
+        id: cornerButton
+
+        property alias source: image.source
+
+        // if a MouseArea is above this CornerButton (such as a drag handler)
+        // that mouse area is responsible for letting this CornerButton
+        // know when it is pressed (so visual indicating the button is pressed
+        // can be shown
+        property bool isPressed: pressed
+
+        // allows logic determining visiblity to be appended instead of overridden
+        property bool isVisible: true
+
+        visible:        isVisible && _isExpanded && (ScreenTools.isMobile || pipMouseArea.containsMouse || popupPIP.containsMouse || hidePIP.containsMouse || pipResizeButton.containsMouse || pipResizeButton.pressed)
+        opacity:        pipResizeButton.pressed ? 0 : 1
+        width:          ScreenTools.defaultFontPixelWidth * 6
+        height:         width
+
+        hoverEnabled: !ScreenTools.isMobile
+
+        property bool anchorTop: anchors.top == parent.top
+        property bool anchorBottom: anchors.bottom == parent.bottom
+        property bool anchorLeft: anchors.left == parent.left && anchors.leftMargin == 0
+        property bool anchorRight: anchors.leftMargin || anchors.right == parent.right
+
+        Item {
+            z:              -1
+            clip:           true
+            opacity:        isPressed ? 0.55 : containsMouse ? 0.33 :  0
+
+            anchors.top:    anchorTop ? parent.top : undefined
+            anchors.bottom: anchorBottom ? parent.bottom : undefined
+            anchors.left:   anchorLeft ? parent.left : undefined
+            anchors.right:  anchorRight ? parent.right : undefined
+            width:          parent.width + highlightRect.border.width
+            height:         width
+
+            Rectangle {
+                id:             highlightRect
+                color:          "black"
+                width:          parent.width * 2
+                height:         width
+                x:              anchorLeft ? -width / 2 : 0
+                y:              anchorTop ? -height / 2 : 0
+                radius:         ScreenTools.defaultFontPixelWidth
+                border.width:   ScreenTools.defaultFontPixelWidth / 2
+                border.color:   "#66FFFFFF"
+            }
+        }
+
+        Image {
+            id:                 image
+            mipmap:             true
+            fillMode:           Image.PreserveAspectFit
+            anchors.centerIn:   parent
+            height:             ScreenTools.defaultFontPixelWidth * 4
+            width:              height
+            sourceSize.height:  height
         }
     }
 
@@ -213,12 +355,15 @@ Item {
         width:                  ScreenTools.defaultFontPixelHeight * 2
         radius:                 ScreenTools.defaultFontPixelHeight / 3
         visible:                !_isExpanded
-        color:                  _fullItem.pipState.isDark ? Qt.rgba(0,0,0,0.75) : Qt.rgba(0,0,0,0.5)
-        Image {
+        color:                  qgcPal.window
+        opacity:                0.66
+
+        QGCColoredImage {
             width:              parent.width  * 0.75
             height:             parent.height * 0.75
             sourceSize.height:  height
-            source:             "/res/buttonRight.svg"
+            source:             "qrc:/InstrumentValueIcons/cheveron-right.svg"
+            color:              qgcPal.text
             mipmap:             true
             fillMode:           Image.PreserveAspectFit
             anchors.verticalCenter:     parent.verticalCenter
@@ -228,5 +373,5 @@ Item {
             anchors.fill:   parent
             onClicked:      _root._setPipIsExpanded(true)
         }
-    }
+    }    
 }

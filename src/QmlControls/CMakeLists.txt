@@ -98,6 +98,8 @@ qt_add_qml_module(QGroundControlControlsModule
         FileButton.qml
         FlightModeMenu.qml
         HeightIndicator.qml
+        HideButton.qml
+        HideButtonValue.qml
         HorizontalFactValueGrid.qml
         IndicatorButton.qml
         InstrumentValueEditDialog.qml
@@ -169,6 +171,7 @@ qt_add_qml_module(QGroundControlControlsModule
         SliderSwitch.qml
         SubMenuButton.qml
         TimedProgressTracker.qml
+        TinyButton.qml
         ToolIndicatorPage.qml
         ToolStrip.qml
         ToolStripDropPanel.qml
