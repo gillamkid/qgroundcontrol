@@ -211,6 +211,7 @@ CPMAddPackage(
     VERSION 1.0.8
     GIT_REPOSITORY https://gitlab.com/bzip2/bzip2.git
     GIT_TAG 66c46b8c9436613fd81bc5d03f63a61933a4dcc3
+    GIT_SUBMODULES "" # only submodule is bzip2-testfiles, which we don't need
     OPTIONS
         "ENABLE_LIB_ONLY ON"
         "ENABLE_SHARED_LIB OFF"
